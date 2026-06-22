@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Special Birthday Wish</title>
+<!-- Dependencies -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+<style>
+:root { --bg: #0c0a09; }
+body { margin: 0; background-color: var(--bg); color: white; font-family: 'Satoshi', sans-serif; overflow-x: hidden; }
+.aurora-bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(circle at 20% 30%, hsla(333,70%,55%,.4), transparent), radial-gradient(circle at 80% 70%, hsla(282, 82%, 54%, .3), transparent), radial-gradient(circle at 50% 50%, hsla(210, 89%, 60%, .3), transparent); filter: blur(80px); animation: move 20s infinite alternate; }
+@keyframes move { from { transform: scale(1); } to { transform: scale(1.2); } }
+#canvas-container { position: fixed; top: 0; left: 0; z-index: -1; }
+.glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.text-gradient { background: linear-gradient(to right, #ff7eb3, #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Playfair Display', serif; }
+.step { display: none; opacity: 0; }
+.btn-grad { background: linear-gradient(45deg, #db2777, #f43f5e); transition: all 0.3s ease; }
+.btn-grad:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(244, 63, 94, 0.5); }
+</style>
+</head>
+<body>
+
+<div class="aurora-bg"></div>
+<div id="canvas-container"></div>
+
+<!-- Progress Bar -->
+<div class="fixed top-0 left-0 w-full p-4 z-50">
+<div class="w-full max-w-md mx-auto h-2 bg-white/10 rounded-full overflow-hidden">
+<div id="progress" class="h-full w-0 btn-grad transition-all duration-500"></div>
+</div>
+</div>
+
+<!-- Main Content Wrapper -->
+<main id="app" class="flex items-center justify-center min-h-screen p-6">
+<!-- Steps will be injected here -->
+</main>
+
+<script>
+// Three.js Background
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+const hearts = [];
+const geometry = new THREE.IcosahedronGeometry(0.5, 2);
+const material = new THREE.MeshPhongMaterial({ color: 0xff69b4, shininess: 100 });
+
+for(let i=0; i<25; i++) {
+const heart = new THREE.Mesh(geometry, material);
+heart.position.set((Math.random()-0.5)*10, (Math.random()-0.5)*10, -5);
+scene.add(heart);
+hearts.push(heart);
+}
+const light = new THREE.PointLight(0xffffff, 1, 100);
+light.position.set(0, 0, 5);
+scene.add(light);
+camera.position.z = 5;
+
+function animate() {
+requestAnimationFrame(animate);
+hearts.forEach((h, i) => { h.rotation.y += 0.01; h.position.y += Math.sin(Date.now()*0.001 + i) * 0.01; });
+renderer.render(scene, camera);
+}
+animate();
+
+// Step Logic
+let currentStep = 1;
+const steps = [
+{ id: 1, icon: "❤️", title: "Hey Beautiful,", body: "I built a little world for you, just to bring a smile to your face on your special day.", btn: "Let's Begin" },
+{ id: 2, icon: "🎉", title: "Happy Birthday!", body: "Another year of you making the world brighter. Your existence is a gift, and I'm so lucky to witness it.", btn: "There's more..." },
+{ id: 3, type: 'bento', title: "A Few Things I Adore About You", items: [
+{t: "✨ Your Kindness", d: "The genuine warmth you show to everyone is truly rare."},
+{t: "😊 That Smile", d: "It's a work of art."},
+{t: "🌟 Your Spirit", d: "Your passion for life is infectious."}
+ ], btn: "Remember this?" },
+{ id: 4, type: 'polaroid', title: "That One Time...", img: "https://i.ibb.co/6Z6XgCg/crush.webp", body: "Every moment with you feels like a scene from a movie I'd watch on repeat.", btn: "One last thing..." },
+{ id: 5, icon: "🎂", title: "My Wish For You", body: "May the next year bring you all the love, success, and pure happiness you so rightfully deserve.", btn: "Celebrate!" }
+];
+
+function renderStep(id) {
+const step = steps.find(s => s.id === id);
+const app = document.getElementById('app');
+document.getElementById('progress').style.width = ${(id/5)*100}%`;
+
+let html = <div id="step-content" class="glass p-8 md:p-12 max-w-lg w-full text-center transition-all duration-700">;
+
+if(step.icon) html += <div class="text-6xl mb-6 animate-bounce"&gt;${step.icon}</div>; if(step.type === 'bento') { html +=<h2 class="text-3xl text-gradient mb-8">{step.items.map((it,i) => <div class="glass p-4 ${i===0?'col-span-2':''}"><h3 class="font-bold">${it.t}&lt;/h3&gt;&lt;p class="text-sm opacity-80"&gt;${it.d}</p></div>).join('')} &lt;/div>;
+} else if(step.type === 'polaroid') {
+html += <h2 class="text-3xl text-gradient mb-4"&gt;${step.title}</h2>
+<div class="bg-white p-4 pb-12 rotate-2 mb-6 inline-block shadow-xl"><img src="{step.body}</p>; } else { html +=<h2 class="text-4xl text-gradient mb-4">{step.body}</p>`;
+}
+
+html += <button onclick="nextStep()" class="btn-grad px-8 py-3 rounded-full font-bold text-lg w-full"&gt;${step.btn}&lt;/button&gt;&lt;/div>;
+app.innerHTML = html;
+gsap.fromTo("#step-content", {y: 50, opacity: 0}, {y: 0, opacity: 1, duration: 1});
+}
+
+function nextStep() {
+if(currentStep < 5) {
+currentStep++;
+renderStep(currentStep);
+} else {
+// Finale
+document.getElementById('app').innerHTML = <h1 class="text-5xl text-gradient font-bold animate-pulse"&gt;Happy Birthday, my crush! ❤️&lt;/h1>;
+confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+// Swirl hearts away
+gsap.to(hearts.map(h => h.position), { y: 20, duration: 3, stagger: 0.05 });
+}
+}
+
+renderStep(1);
+</script>
+</body>
+</html>
